@@ -218,14 +218,7 @@ Content-Type: application/json
 
 ## 📊 Notebooks
 
-### `data_cleaning.ipynb`
-Data preprocessing pipeline:
-- Feature extraction from network logs
-- Data normalization and scaling
-- Missing value handling
-- Train/test split preparation
-
-### `IBM.ipynb`
+### `IBM_final.ipynb`
 Model development workflow:
 - Exploratory Data Analysis (EDA)
 - Model architecture design
