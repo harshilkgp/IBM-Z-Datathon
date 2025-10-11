@@ -176,7 +176,7 @@ def predict_random():
 
         return jsonify({
             "ml_pipeline_results": result,
-            "gemini_analyst_report": llm_json_report # This now contains only {"output": "..."}
+            "gemini_analyst_report": llm_json_report 
         })
 
     except Exception as e:
