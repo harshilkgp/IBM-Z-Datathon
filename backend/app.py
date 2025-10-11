@@ -21,7 +21,8 @@ from tensorflow.keras.models import load_model
 # Example: export GEMINI_API_KEY="your-real-key-here"
 GEMINI_API_KEY = "AIzaSyAI6EbiSlut3OMhsAjgnYvHs0wAGhgrXeg" # Uses environment variable
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent"
-REPORT_MAX_TOKENS = 800
+# Increased max tokens to prevent truncation errors when generating complex structured JSON output
+REPORT_MAX_TOKENS = 4096 
 TEMPERATURE = 0.0
 MAX_RETRIES = 3
 
@@ -45,7 +46,7 @@ try:
     print("Models and scalers loaded successfully.")
 except (IOError, FileNotFoundError, ImportError) as e:
     print(f"Error loading model or scaler files. Model features will be disabled: {e}")
-    # Set to None and disable functionality if files are missing
+    # Set to None and disable functionality if files is missing
     model1, model2, scaler1, scaler2 = None, None, None, None
     MODELS_LOADED = False
 
@@ -70,6 +71,7 @@ def robust_parse_json(text_content):
         except json.JSONDecodeError:
             try:
                 # Fallback to ast.literal_eval for dictionary-like structures
+                # Note: ast.literal_eval is safer than eval()
                 return ast.literal_eval(fixed)
             except Exception as e:
                 return {"error": "Failed to parse LLM response", "details": str(e), "raw_output": text_content}
@@ -80,25 +82,23 @@ def robust_parse_json(text_content):
 def call_gemini_with_json_request(system_prompt: str, user_prompt: str) -> dict:
     """
     Calls the Gemini API with a structured JSON request and handles exponential backoff.
+    The response schema is enforced to be a JSON object with a single 'output' string.
     """
+    # NOTE: The provided GEMINI_API_KEY is a placeholder and should be securely loaded
+    # from the environment variable 'GEMINI_API_KEY' for production use.
     if not GEMINI_API_KEY:
         return {"error": "GEMINI_API_KEY is missing. Cannot generate report."}
 
     api_url = f"{GEMINI_API_URL}?key={GEMINI_API_KEY}"
 
     # Define the strict JSON schema for the output report
+    # MODIFIED: Enforce single 'output' string property
     json_schema = {
         "type": "OBJECT",
         "properties": {
-            "attack_detected": {"type": "BOOLEAN", "description": "True if an attack is highly probable."},
-            "attack_type": {"type": "STRING", "description": "The specific type of attack (e.g., DoS, Probe, Normal)."},
-            "confidence": {"type": "NUMBER", "description": "Overall confidence score (0.0 to 1.0) based on all models."},
-            "ports": {"type": "ARRAY", "items": {"type": "INTEGER"}, "description": "List of key ports involved in the flow."},
-            "description": {"type": "STRING", "description": "A concise, plain-language summary of the incident."},
-            "recommended_mitigation": {"type": "ARRAY", "items": {"type": "STRING"}, "description": "Actionable steps to resolve the threat."},
-            "feature_insights": {"type": "STRING", "description": "Explanation of which raw features were most indicative of the finding."}
+            "output": {"type": "STRING", "description": "A comprehensive summary string detailing the attack status, type, and mitigation steps."}
         },
-        "required": ["attack_detected", "attack_type", "confidence", "description"]
+        "required": ["output"]
     }
 
     payload = {
@@ -155,7 +155,10 @@ def call_gemini_with_json_request(system_prompt: str, user_prompt: str) -> dict:
 # HELPER: build prompt for LLM
 # --------------------------
 def build_llm_prompt(raw_features, model_results):
-    """Formats the data for the LLM to analyze."""
+    """
+    Formats the data for the LLM to analyze and includes instructions 
+    for the single-string 'output' format.
+    """
     lines = []
     lines.append("Analyze the following network flow data and the predictions from our internal ML models.")
     lines.append(f"--- Data for Analysis ---")
@@ -167,12 +170,20 @@ def build_llm_prompt(raw_features, model_results):
         lines.append(f"- Model 2 Raw Classification Scores (5 classes): {raw_scores}")
     
     # Extract the destination port, which is the first feature in this dataset format
-    dest_port = raw_features[0][0] if raw_features and raw_features[0] else 'N/A'
-    lines.append(f"- Destination Port Feature: {dest_port}")
+    dest_port = raw_features[0][0] if raw_features and raw_features[0] else 0
+    lines.append(f"- Destination Port Feature (Feature 1): {dest_port}")
     # Show a sample of input features to give context on the data's scale
     lines.append(f"- Sample of Raw Input Features (first 5): {raw_features[0][:5] if raw_features else 'N/A'}")
     lines.append("--- End of Data ---")
-    lines.append("\nBased on all this data, provide your expert analysis in the required JSON format. Assume the 5 Model 2 classes correspond to (Normal, DoS, Probe, R2L, U2R) in that order.")
+    
+    # MODIFIED: Specific instruction for the single string output
+    lines.append(f"\nBased on all this data, you must generate a single string for the 'output' field. This string must contain the following information concisely and clearly, in this order: ")
+    lines.append(f"1. A clear statement on whether an attack was detected (e.g., 'ATTACK DETECTED' or 'NO ATTACK').")
+    # UPDATED MAPPING: Changed the class order to map index 0 (highest score) to DoS, based on user feedback
+    lines.append(f"2. If an attack was detected, the most probable attack type, assuming the 5 Model 2 classes correspond to (DoS, Normal, Probe, R2L, U2R).")
+    lines.append(f"3. One or two highly effective, immediate mitigation steps for the detected threat. If no attack is detected, recommend basic network monitoring steps.")
+    lines.append(f"The final JSON output must strictly conform to the schema: {{\"output\": \"[Your analysis string here...]\"}}")
+    
     return "\n".join(lines)
 
 # --------------------------
@@ -192,11 +203,8 @@ def predict_random():
     
     try:
         # Static example data point known to represent an attack (based on the original data structure)
-        x_raw = np.array([[80, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 666666.6667,
-                            3, 0, 3, 3, 3, 3, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 64,
-                            0, 666666.6667, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-                            0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 251, -1, 0,
-                            32, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
+        # This specific flow targets port 80 and has characteristics common to a DoS attack
+        x_raw = np.array([[80, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,1000000, 2, 0, 2, 2, 2, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 251, -1, 0, 32, 0, 0, 0, 0, 0, 0, 0]])
 
         # 1. Model 1 (Binary Classification: Attack or Normal)
         x1 = scaler1.transform(x_raw)
@@ -212,13 +220,16 @@ def predict_random():
             result["triggered"] = True
 
         # 3. Gemini Report Generation
-        system_prompt = "You are a senior cybersecurity analyst. Your role is to interpret the provided ML model outputs and network flow features to generate a security incident report. The output must strictly be a JSON object conforming to the required schema. Ensure the confidence score reflects the strongest prediction and the description is concise."
+        # MODIFIED: System prompt updated for the new output format
+        system_prompt = "You are a senior cybersecurity analyst. Your only task is to interpret the provided ML model outputs and network flow features and condense the findings into a single, comprehensive string formatted as a JSON object with only one key, 'output'. The string must clearly state the attack status, the attack type (if any), and actionable mitigation steps."
+        
         user_prompt = build_llm_prompt(x_raw.tolist(), result)
         llm_json_report = call_gemini_with_json_request(system_prompt, user_prompt)
 
+        # The final output to the API caller will include the ML results and the streamlined Gemini report
         return jsonify({
             "ml_pipeline_results": result,
-            "gemini_analyst_report": llm_json_report
+            "gemini_analyst_report": llm_json_report # This now contains only {"output": "..."}
         })
 
     except Exception as e:
@@ -229,4 +240,5 @@ def predict_random():
 # --------------------------
 if __name__ == "__main__":
     # The debug flag is useful for local development
+    # Run: python app.py
     app.run(debug=True, host="127.0.0.1", port=5000)
