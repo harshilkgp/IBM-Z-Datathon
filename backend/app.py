@@ -204,7 +204,7 @@ def predict_random():
     try:
         # Static example data point known to represent an attack (based on the original data structure)
         # This specific flow targets port 80 and has characteristics common to a DoS attack
-        x_raw = np.array([[80, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,1000000, 2, 0, 2, 2, 2, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 251, -1, 0, 32, 0, 0, 0, 0, 0, 0, 0]])
+        x_raw = np.array([[80, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,1000000, 2, 0, 2, 2, 2, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 251, -1, 0, 32, 0, 0, 0, 0, 0, 0, 0]])
 
         # 1. Model 1 (Binary Classification: Attack or Normal)
         x1 = scaler1.transform(x_raw)
