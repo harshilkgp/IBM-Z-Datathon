@@ -1,13 +1,15 @@
+
 import os
 import json
 import time
 import re
 import ast
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import numpy as np
 import requests
 import joblib
 from tensorflow.keras.models import load_model
+from flask_cors import CORS
 
 GEMINI_API_KEY = "AIzaSyAI6EbiSlut3OMhsAjgnYvHs0wAGhgrXeg" 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent"
@@ -17,7 +19,9 @@ TEMPERATURE = 0.0
 MAX_RETRIES = 3
 
 
+
 app = Flask(__name__)
+CORS(app)
 
 try:
 
@@ -169,6 +173,64 @@ def predict_random():
             result["triggered"] = True
 
     
+        system_prompt = "You are a senior cybersecurity analyst. Your only task is to interpret the provided ML model outputs and network flow features and condense the findings into a single, comprehensive string formatted as a JSON object with only one key, 'output'. The string must clearly state the attack status, the attack type (if any), and actionable mitigation steps."
+        
+        user_prompt = build_llm_prompt(x_raw.tolist(), result)
+        llm_json_report = call_gemini_with_json_request(system_prompt, user_prompt)
+
+        return jsonify({
+            "ml_pipeline_results": result,
+            "gemini_analyst_report": llm_json_report 
+        })
+
+    except Exception as e:
+        return jsonify({"error": f"An unexpected error occurred during prediction: {str(e)}"}), 500
+
+
+@app.route("/predict", methods=["POST"])
+def predict_from_json():
+    """
+    Accept JSON data with network features and return attack analysis.
+    Expected JSON format: {"features": [array of 78 features]}
+    """
+    if not MODELS_LOADED:
+        return jsonify({
+            "error": "Model files are missing or failed to load. Please ensure 'best_model.h5', 'best_multiclass_model.h5', 'scaler1.gz', and 'scaler2.gz' are available.",
+            "note": "The LLM report functionality requires the ML models to provide input data."
+        }), 503
+    
+    try:
+        data = request.get_json()
+        
+        if not data or "features" not in data:
+            return jsonify({"error": "Invalid JSON format. Expected {'features': [array of network features]}"}), 400
+        
+        features = data["features"]
+        
+        # Convert to numpy array
+        if isinstance(features[0], list):
+            x_raw = np.array(features)
+        else:
+            x_raw = np.array([features])
+        
+        # Validate feature dimensions
+        if x_raw.shape[1] != 78:
+            return jsonify({"error": f"Expected 78 features, got {x_raw.shape[1]}"}), 400
+
+        # Run Model 1 (Binary Attack Detection)
+        x1 = scaler1.transform(x_raw)
+        pred1 = model1.predict(x1)
+        p_attack = float(pred1[0][0])
+        result = {"model1_prob": p_attack, "triggered": False, "model2_raw": None}
+
+        # Run Model 2 if attack detected
+        if p_attack > 0.5:
+            x2 = scaler2.transform(x_raw)
+            pred2 = model2.predict(x2)
+            result["model2_raw"] = [float(x) for x in np.ravel(pred2)]
+            result["triggered"] = True
+
+        # Generate LLM Report
         system_prompt = "You are a senior cybersecurity analyst. Your only task is to interpret the provided ML model outputs and network flow features and condense the findings into a single, comprehensive string formatted as a JSON object with only one key, 'output'. The string must clearly state the attack status, the attack type (if any), and actionable mitigation steps."
         
         user_prompt = build_llm_prompt(x_raw.tolist(), result)
