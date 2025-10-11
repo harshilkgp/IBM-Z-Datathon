@@ -1,48 +1,40 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 import numpy as np
 from tensorflow.keras.models import load_model
+import joblib  # requires scikit-learn installed
 
-# --------------------------
-# Initialize Flask app
-# --------------------------
 app = Flask(__name__)
 
-# --------------------------
-# Load your models once
-# --------------------------
-# Replace with your actual model paths
+# Load models once
 model1 = load_model('best_model.h5', compile=False)
 model2 = load_model('best_multiclass_model.h5', compile=False)
 
-# --------------------------
-# GET route to check server
-# --------------------------
+# Load scalers once
+scaler1 = joblib.load('scaler1.gz')
+scaler2 = joblib.load('scaler2.gz')
+
 @app.route('/', methods=['GET'])
 def home():
     print("GET request received at /")
     return "Server is running ✅"
 
-# --------------------------
-# Prediction route
-# --------------------------
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['GET'])
 def predict():
     try:
-        data = request.json
-        print("Received POST request with data:", data)
+        # Generate random synthetic input (78 features)
+        x_input = np.random.rand(1, 78)
 
-        # Convert features to NumPy array
-        x_input = np.array(data['features']).reshape(1, -1)
-
-        # Model 1 prediction (binary)
-        pred1 = model1.predict(x_input)
+        # Scale for Model 1
+        x_input1 = scaler1.transform(x_input)
+        pred1 = model1.predict(x_input1)
         print("Model 1 output:", pred1)
 
         result = {'model1_output': float(pred1[0][0])}
 
-        # Trigger Model 2 only if Model 1 predicts > 0.5
+        # Trigger Model 2 if Model 1 > 0.5
         if pred1[0][0] > 0.5:
-            pred2 = model2.predict(x_input)
+            x_input2 = scaler2.transform(x_input)
+            pred2 = model2.predict(x_input2)
             print("Model 2 output:", pred2)
             result['model2_output'] = pred2.tolist()
             result['triggered'] = True
@@ -55,8 +47,5 @@ def predict():
     except Exception as e:
         return jsonify({'error': str(e)})
 
-# --------------------------
-# Run the Flask app
-# --------------------------
 if __name__ == '__main__':
     app.run(debug=True)
