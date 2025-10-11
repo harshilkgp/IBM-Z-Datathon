@@ -39,8 +39,9 @@ IBM-Z-Datathon/
 │   ├── app.js                      # Frontend JavaScript logic
 │   └── sample_input.json           # Example input file (78 features)
 │
-├── data_cleaning.ipynb             # Data preprocessing notebook
-├── IBM.ipynb                       # Model training notebook
+├── deep_learning_model/
+│   └── IBM_final.ipynb             # Model training & development notebook
+│
 └── README.md                       # This file
 ```
 
