@@ -23,15 +23,15 @@ An advanced **ML-powered cybersecurity threat detection system** that combines d
 ## 📸 Screenshots
 
 ### Initial Upload Interface
-![Upload Interface](screenshots/screenshot1.png)
+![Upload Interface](screenshots/screenshot1.jpeg)
 *Beautiful gradient UI with intuitive file upload area*
 
 ### Attack Analysis Results
-![Analysis Results](screenshots/screenshot2.png)
+![Analysis Results](screenshots/screenshot2.jpeg)
 *Real-time attack detection with ML model results and AI-generated insights*
 
 ### File Selection Dialog
-![File Selection](screenshots/screenshot3.png)
+![File Selection](screenshots/screenshot3.jpeg)
 *Easy JSON file selection with multiple test inputs available*
 
 ---
@@ -59,9 +59,9 @@ IBM-Z-Datathon/
 │   └── IBM_final.ipynb             # Model training & development notebook
 │
 ├── screenshots/                    # UI screenshots for documentation
-│   ├── screenshot1.png             # Upload interface
-│   ├── screenshot2.png             # Analysis results
-│   └── screenshot3.png             # File selection
+│   ├── screenshot1.jpeg            # Upload interface
+│   ├── screenshot2.jpeg            # Analysis results
+│   └── screenshot3.jpeg            # File selection
 │
 └── README.md                       # This file
 ```
