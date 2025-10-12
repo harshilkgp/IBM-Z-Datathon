@@ -218,7 +218,7 @@ Content-Type: application/json
 }
 ```
 
-**Response:** Same as above, with analysis for your specific data.
+**Response:** Same as above, with analysis and prediction for your specific data.
 
 ---
 
