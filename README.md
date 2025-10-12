@@ -20,7 +20,7 @@ An advanced **ML-powered cybersecurity threat detection system** that combines d
 
 ---
 
-## 📸 Screenshots
+## 🎨 User Interface Preview
 
 ### Initial Upload Interface
 ![Upload Interface](screenshots/screenshot1.jpeg)
