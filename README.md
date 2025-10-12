@@ -1,4 +1,4 @@
-# 🛡️ IBM-Z-Datathon - Cybersecurity Attack Analyzer
+# 🛡️ IBM-Z-Datathon - ThreatScopeAI
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.1.2-green.svg)](https://flask.palletsprojects.com/)
