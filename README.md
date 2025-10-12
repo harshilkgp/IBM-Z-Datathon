@@ -24,17 +24,17 @@ An advanced **ML-powered cybersecurity threat detection system** that combines d
 
 ### Initial Upload Interface
 
-![Upload Interface](screenshots/screenshot1.jpeg)
+![Upload Interface](assets/screenshot1.jpeg)
 _Beautiful gradient UI with intuitive file upload area_
 
 ### File Selection Dialog
 
-![File Selection](screenshots/screenshot2.jpeg)
+![File Selection](assets/screenshot2.jpeg)
 _Easy JSON file selection with multiple test inputs available_
 
 ### Attack Analysis Results
 
-![Analysis Results](screenshots/screenshot3.jpeg)
+![Analysis Results](assets/screenshot3.jpeg)
 _Real-time attack detection with ML model results and AI-generated insights_
 
 ---
