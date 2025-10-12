@@ -23,16 +23,19 @@ An advanced **ML-powered cybersecurity threat detection system** that combines d
 ## 🎨 User Interface Preview
 
 ### Initial Upload Interface
-![Upload Interface](screenshots/screenshot1.jpeg)
-*Beautiful gradient UI with intuitive file upload area*
 
-### Attack Analysis Results
-![Analysis Results](screenshots/screenshot2.jpeg)
-*Real-time attack detection with ML model results and AI-generated insights*
+![Upload Interface](screenshots/screenshot1.jpeg)
+_Beautiful gradient UI with intuitive file upload area_
 
 ### File Selection Dialog
-![File Selection](screenshots/screenshot3.jpeg)
-*Easy JSON file selection with multiple test inputs available*
+
+![File Selection](screenshots/screenshot2.jpeg)
+_Easy JSON file selection with multiple test inputs available_
+
+### Attack Analysis Results
+
+![Analysis Results](screenshots/screenshot3.jpeg)
+_Real-time attack detection with ML model results and AI-generated insights_
 
 ---
 
@@ -79,24 +82,26 @@ IBM-Z-Datathon/
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/harshilkgp/IBM-Z-Datathon.git
    cd IBM-Z-Datathon
    ```
 
 2. **Set up the backend:**
+
    ```bash
    cd backend
-   
+
    # Create virtual environment (optional but recommended)
    python -m venv venv
-   
+
    # Activate virtual environment
    # On Windows:
    venv\Scripts\activate
    # On macOS/Linux:
    source venv/bin/activate
-   
+
    # Install dependencies
    pip install -r requirements.txt
    pip install flask-cors
@@ -121,6 +126,7 @@ python app.py
 ```
 
 You should see:
+
 ```
  * Running on http://127.0.0.1:5000
 Models and scalers loaded successfully.
@@ -129,10 +135,12 @@ Models and scalers loaded successfully.
 ### Using the Web Interface
 
 1. **Open the frontend:**
+
    - Navigate to `frontend/index.html` in your browser
    - Or simply double-click `index.html`
 
 2. **Upload a JSON file:**
+
    - Click the upload area
    - Select a JSON file with network features (see format below)
    - Or use the provided `sample_input.json`
@@ -146,11 +154,10 @@ Models and scalers loaded successfully.
 ```json
 {
   "features": [
-    80, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1000000, 
-    2, 0, 2, 2, 2, 2, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 64, 0, 1000000, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 
-    0, 2, 0, 0, 0, 251, -1, 0, 32, 0, 0, 0, 0, 0, 0, 0
+    80, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1000000, 2, 0, 2, 2, 2, 2, 0,
+    2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 64, 0, 1000000, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 64, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 251, -1, 0,
+    32, 0, 0, 0, 0, 0, 0, 0
   ]
 }
 ```
@@ -162,18 +169,23 @@ Models and scalers loaded successfully.
 ## 🔌 API Endpoints
 
 ### 1. Health Check
+
 ```
 GET /
 ```
+
 Returns server status message.
 
 ### 2. Sample Prediction
+
 ```
 GET /predict_random
 ```
+
 Runs analysis on hardcoded sample data (for testing).
 
 **Response:**
+
 ```json
 {
   "ml_pipeline_results": {
@@ -188,6 +200,7 @@ Runs analysis on hardcoded sample data (for testing).
 ```
 
 ### 3. Custom Prediction
+
 ```
 POST /predict
 Content-Type: application/json
@@ -204,12 +217,14 @@ Content-Type: application/json
 ## 🧪 Machine Learning Pipeline
 
 ### Model 1: Binary Attack Detector
+
 - **Type:** Neural Network (Keras/TensorFlow)
 - **Purpose:** Detects if network traffic is malicious
 - **Output:** Probability score (0-1)
 - **Threshold:** 0.5 (triggers Model 2 if exceeded)
 
 ### Model 2: Multiclass Classifier
+
 - **Type:** Neural Network (Keras/TensorFlow)
 - **Purpose:** Categorizes attack types
 - **Classes:**
@@ -220,6 +235,7 @@ Content-Type: application/json
   5. U2R (User to Root)
 
 ### Gemini AI Integration
+
 - **Model:** gemini-2.5-flash-preview
 - **Purpose:** Generate human-readable threat reports
 - **Output:** Attack summary + mitigation recommendations
@@ -241,7 +257,9 @@ Content-Type: application/json
 ## 📊 Notebooks
 
 ### `IBM_final.ipynb`
+
 Model development workflow:
+
 - Exploratory Data Analysis (EDA)
 - Model architecture design
 - Training and validation
@@ -253,6 +271,7 @@ Model development workflow:
 ## 🔧 Technologies Used
 
 ### Backend
+
 - **Flask** - Web framework
 - **TensorFlow/Keras** - Deep learning
 - **NumPy** - Numerical computing
@@ -261,12 +280,14 @@ Model development workflow:
 - **Requests** - API calls to Gemini
 
 ### Frontend
+
 - **HTML5** - Structure
 - **CSS3** - Styling (gradients, animations)
 - **JavaScript (ES6+)** - Interactivity
 - **Fetch API** - Backend communication
 
 ### AI/ML
+
 - **Google Gemini AI** - Natural language generation
 - **Custom Neural Networks** - Attack detection/classification
 
@@ -285,6 +306,7 @@ export FLASK_PORT=5000
 ```
 
 Then update `app.py`:
+
 ```python
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 ```
@@ -302,16 +324,19 @@ CORS(app, resources={r"/*": {"origins": ["https://yourdomain.com"]}})
 ## 🐛 Troubleshooting
 
 ### "Failed to fetch" error
+
 - ✅ Ensure backend is running (`python app.py`)
 - ✅ Check console for errors (F12 in browser)
 - ✅ Verify CORS is enabled in `app.py`
 
 ### Import errors
+
 - ✅ Activate virtual environment: `venv\Scripts\activate`
 - ✅ Install dependencies: `pip install -r requirements.txt`
 - ✅ Install flask-cors: `pip install flask-cors`
 
 ### Model loading errors
+
 - ✅ Check that all `.h5` and `.gz` files exist in `backend/`
 - ✅ Verify file permissions
 - ✅ Ensure TensorFlow is properly installed
