@@ -11,7 +11,7 @@ import joblib
 from tensorflow.keras.models import load_model
 from flask_cors import CORS
 
-GEMINI_API_KEY = "" 
+GEMINI_API_KEY = "AIzaSyAI6EbiSlut3OMhsAjgnYvHs0wAGhgrXeg" 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent"
 
 REPORT_MAX_TOKENS = 4096 
@@ -166,7 +166,7 @@ def predict_random():
         p_attack = float(pred1[0][0])
         result = {"model1_prob": p_attack, "triggered": False, "model2_raw": None}
 
-        if p_attack > 0.5:
+        if p_attack >= 0.4:
             x2 = scaler2.transform(x_raw)
             pred2 = model2.predict(x2)
             result["model2_raw"] = [float(x) for x in np.ravel(pred2)]
