@@ -61,11 +61,19 @@ IBM-Z-Datathon/
 ├── deep_learning_model/
 │   └── IBM_final.ipynb             # Model training & development notebook
 │
-├── screenshots/                    # UI screenshots for documentation
+├── assets/                         # UI screenshots for documentation
 │   ├── screenshot1.jpeg            # Upload interface
-│   ├── screenshot2.jpeg            # Analysis results
-│   └── screenshot3.jpeg            # File selection
+│   ├── screenshot2.jpeg            # File selection dialog
+│   └── screenshot3.jpeg            # Analysis results
 │
+├── Sample Input/                   # Test input files
+│   ├── Input1.json                 # Sample network traffic data 1
+│   ├── Input2.json                 # Sample network traffic data 2
+│   ├── Input3.json                 # Sample network traffic data 3
+│   ├── Input4.json                 # Sample network traffic data 4
+│   └── Input5.json                 # Sample network traffic data 5
+│
+├── LICENSE                         # MIT License
 └── README.md                       # This file
 ```
 
