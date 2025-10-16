@@ -11,7 +11,7 @@ import joblib
 from tensorflow.keras.models import load_model
 from flask_cors import CORS
 
-GEMINI_API_KEY = "AIzaSyAI6EbiSlut3OMhsAjgnYvHs0wAGhgrXeg" 
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY" 
 GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent"
 
 REPORT_MAX_TOKENS = 4096 
